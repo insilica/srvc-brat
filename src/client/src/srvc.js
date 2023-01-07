@@ -3,6 +3,7 @@
 
   var config = null;
   var currentDocEvents = null;
+  var docEntities = null;
 
   const loadConfig = function () {
     config = new Promise((resolve, reject) => {
@@ -28,14 +29,70 @@
     });
   };
 
-  const submitDoc = function() {
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  const bratToWebAnno = async (entities) => {
+    var annos = [];
+    for (i in entities) {
+      const doc = (await currentDocEvents)[0];
+      const entity = entities[i];
+      const end = entity[2][0][1];
+      const start = entity[2][0][0];
+      const anno = {
+        "@context": "http://www.w3.org/ns/anno.jsonld",
+        "body": [
+          {
+            "purpose": "tagging",
+            "type": "TextualBody",
+            "value": entity[1],
+          }],
+        "id": generateUUID(),
+        "target":
+        {
+          "selector":
+            [
+              {
+                "exact": doc.data.abstract.substring(start,end),
+                "type": "TextQuoteSelector",
+              },
+              {
+                "end": end,
+                "start": start,
+                "type": "TextPositionSelector",
+              }
+            ]
+        },
+        "type": "Annotation",
+      };
+      annos.push(anno);
+    }
+    return annos;
+  };
+
+  const submitDoc = async function () {
     var req = new XMLHttpRequest();
     req.addEventListener("load", function (resp) {
+      docEntities = null;
       loadCurrentDocEvents();
     })
     req.open("POST", "/submit-label-answers");
     req.setRequestHeader("Content-Type", "application/json");
-    req.send(JSON.stringify({answers: []}));
+    var answer = {
+      "data": {
+        "answer": await bratToWebAnno(docEntities),
+        "document": (await currentDocEvents)[0].hash,
+        "label": (await config).current_labels[0].hash,
+        "reviewer": (await config).reviewer,
+        "timestamp": Math.floor(Date.now() / 1000),
+      },
+      "type": "label-answer",
+    };
+    req.send(JSON.stringify({answers: [answer]}));
   };
 
   loadConfig();
@@ -247,10 +304,12 @@
   };
 
   const getDocResponse = async (request) => {
+    const entities = await getDocEntities();
+    docEntities = entities;
     const events = await currentDocEvents;
     let doc = Object.assign({}, emptyDoc);
     doc.action = 'getDocument';
-    doc.entities = await getDocEntities();
+    doc.entities = entities
     doc.relations = [];
     doc.text = events[0].data.abstract;
     request.success(doc);
@@ -262,19 +321,23 @@
     protocol: 1
   };
 
+  const saveDocData = (request) => {
+    docEntities = request.data.sourceData.entities;
+  };
+
   window.ajaxCallback = (request) => {
     switch (request.data.action) {
       //case 'createArc':
       //request.success(createArcResponse(request.data))
-      //saveDoc(request.data, articleId)
+      //saveDocData(request);
       // break;
       case 'createSpan':
         request.success(createSpanResponse(request.data))
-        //saveDoc(request.data, articleId)
+        saveDocData(request);
         break;
       case 'deleteSpan':
         request.success(deleteSpanResponse(request.data))
-        //saveDoc(request.data, articleId)
+        saveDocData(request);
         break;
       case 'getCollectionInformation':
         generateCollectionVals(request);
