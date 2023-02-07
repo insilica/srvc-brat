@@ -5,6 +5,10 @@
   var currentDocEvents = null;
   var docEntities = null;
 
+  const currentLabels = async function() {
+    return (await config)['current-labels'] || (await config)['current_labels']
+  }
+
   const loadConfig = function () {
     config = new Promise((resolve, reject) => {
       var req = new XMLHttpRequest();
@@ -86,7 +90,7 @@
       "data": {
         "answer": await bratToWebAnno(docEntities),
         "document": (await currentDocEvents)[0].hash,
-        "label": (await config).current_labels[0].hash,
+        "label": (await currentLabels())[0].hash,
         "reviewer": (await config).reviewer,
         "timestamp": Math.floor(Date.now() / 1000),
       },
@@ -188,7 +192,7 @@
 
   const generateEntityTypes = async () => {
     var types = [];
-    const label = (await config).current_labels[0]
+    const label = (await currentLabels())[0]
     const arcs = generateArcs(label);
     const entities = (label.entities || []);
     for (k in entities) {
@@ -255,7 +259,7 @@
   const getDocEntities = async () => {
     const cfg = await config;
     const events = await currentDocEvents;
-    const label = (cfg.current_labels || [null])[0];
+    const label = ((await currentLabels()) || [null])[0];
     if (!label) return [];
     var entities = [];
     for (i in events) {
