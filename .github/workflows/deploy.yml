@@ -1,0 +1,59 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 1
+
+    - name: Install Nix
+      uses: cachix/install-nix-action@v18
+
+    - name: Restore cached Nix store
+      id: nix-cache-restore
+      uses: john-shaffer/cache/restore@main
+      with:
+        key: nix-${{ github.repository }}-${{ runner.os }}-${{ hashFiles('**.nix', '**/flake.lock') }}
+        restore-keys: |
+          nix-${{ github.repository }}-${{ runner.os }}-
+        path: |
+          /nix/store
+          /nix/var/nix/db/db.sqlite
+
+    - name: Build Nix derivations
+      if: steps.nix-cache-restore.outputs.cache-hit != 'true'
+      run: |
+        nix develop -c echo OK
+
+    - name: Save cached Nix store
+      if: steps.nix-cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v3
+      with:
+        key: nix-${{ github.repository }}-${{ runner.os }}-${{ hashFiles('**.nix', '**/flake.lock') }}
+        path: |
+          /nix/store
+          /nix/var/nix/db/db.sqlite
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        mask-aws-account-id: no
+
+    - name: Deploy to S3
+      run: |
+        nix develop -c aws s3 sync src s3://sysrev-global-resources-staticsitebucket-1niuuunn72799/srvc/brat/
+        nix develop -c aws cloudfront create-invalidation --distribution-id E1CQ224LRQRF8 --paths "/srvc/brat/*"
