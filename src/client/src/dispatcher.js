@@ -48,6 +48,8 @@ var Dispatcher = (function($, window, undefined) {
         var results = [];
         // DEBUG: if (typeof(message) != "string" || !(message.match(/mouse/) || message == "hideComment")) console.log(message, args);
 
+        if (typeof(message) != "string" || !(message.match(/mouse/) || message == "hideComment")) console.log(message, args);
+
         if (typeof(message) === 'function') {
           // someone was lazy and sent a simple function
           var host = arguments.callee.caller;
@@ -103,7 +105,6 @@ var Dispatcher = (function($, window, undefined) {
             if (results[i] === false) return results[i];
           }
         }
-
         return results;
       };
 

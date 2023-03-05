@@ -485,6 +485,7 @@ var Visualizer = (function($, window, undefined) {
         sourceData = _sourceData;
         dispatcher.post('newSourceData', [sourceData]);
         data = new DocumentData(sourceData.text);
+        
 
         // collect annotation data
         $.each(sourceData.entities, function(entityNo, entity) {

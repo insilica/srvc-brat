@@ -246,7 +246,6 @@ var AnnotatorUI = (function($, window, undefined) {
         arcDragOriginGroup.addClass('highlight');
         arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin].headFragment);
         arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
-
         arcDragJustStarted = true;
       };
 
@@ -1282,6 +1281,12 @@ var AnnotatorUI = (function($, window, undefined) {
           relationTypesHash[noNumArcType].properties.symmetric &&
           relationTypesHash[noNumArcType].properties.transitive;
 
+        console.log('fillArcTypesLogBegin');
+        console.log(relationTypesHash);
+        console.log(spanTypes);
+        console.log(originType);
+        console.log('fillArcTypesLogEnd');
+
         var $scroller = $();
         if (spanTypes[originType]) {
           var arcTypes = spanTypes[originType].arcs;
@@ -1289,6 +1294,14 @@ var AnnotatorUI = (function($, window, undefined) {
 
           // lay them out into the form
           $.each(arcTypes || [], function(arcTypeNo, arcDesc) {
+            console.log('fillArc-eachloopLogBegin');
+            console.log(arcTypeNo);
+            console.log(arcDesc);
+            console.log(targetType);
+            console.log(typeof targetType);
+            console.log(arcDesc.targets[0].indexOf(targetType));
+            console.log('fillArc-eachloopLogEnd');
+            
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
 
@@ -1449,7 +1462,6 @@ var AnnotatorUI = (function($, window, undefined) {
         var eventDataId = $(evt.target).attr('data-arc-ed');
         dispatcher.post('hideForm');
         arcOptions.action = 'deleteArc';
-        arcOptions['sourceData'] = sourceData;
         dispatcher.post('ajax', [arcOptions, 'edited']);
       };
 
@@ -1529,16 +1541,27 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // is it arc drag end?
         if (arcDragOrigin) {
+          console.log('test1');
           var origin = arcDragOrigin;
           var targetValid = target.hasClass('reselectTarget');
           stopArcDrag(target);
+          console.log('arcDragOptionLogBegin');
+          console.log(target.attr('data-span-id'));
+          console.log(origin);
+          console.log(targetValid);
+          console.log('arcDragOptionLogEnd');
           if ((id = target.attr('data-span-id')) && origin != id && targetValid) {
+            console.log('test2');
+            console.log(data);
+            console.log(arcOptions);
             var originSpan = data.spans[origin];
             var targetSpan = data.spans[id];
             if (arcOptions && arcOptions.old_target) {
+              console.log('test6');
               arcOptions.target = targetSpan.id;
               dispatcher.post('ajax', [arcOptions, 'edited']);
             } else {
+              console.log('test3');
               arcOptions = {
                 action: 'createArc',
                 'sourceData': sourceData,
@@ -1547,14 +1570,18 @@ var AnnotatorUI = (function($, window, undefined) {
                 collection: coll,
                 'document': doc
               };
+              console.log(arcOptions);
               $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type)+' ("'+originSpan.text+'")');
               $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type)+' ("'+targetSpan.text+'")');
               fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
               // for precise timing, log dialog display to user.
               dispatcher.post('logAction', ['arcSelected']);
             }
+          } else {
+            console.log('test5');
           }
         } else if (!evt.ctrlKey) {
+          console.log('test4');
           // if not, then is it span selection? (ctrl key cancels)
           var sel = window.getSelection();
           var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');

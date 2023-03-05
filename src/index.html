@@ -11,119 +11,121 @@
     <script src="client/src/srvc.js"></script>
     <script type="text/javascript" src="client/lib/head.load.min.js"></script>
     <script type="text/javascript">
-      head.js(
-          // libraries
-          'client/lib/jquery.min.js',
-          'client/lib/jquery-ui.min.js',
-          'client/lib/jquery.svg.min.js',
-          'client/lib/jquery.svgdom.min.js',
-          'client/lib/jquery.ba-bbq.min.js',
-          'client/lib/jquery.sprintf.js',
-          'client/lib/jquery.json.min.js',
-          'client/lib/webfont.js',
-          // brat helpers
-          'client/src/configuration.js',
-          'client/src/util.js',
-          'client/src/annotation_log.js',
-          // brat modules
-          'client/src/dispatcher.js',
-          'client/src/url_monitor.js',
-          'client/src/ajax.js',
-          'client/src/visualizer.js',
-          'client/src/visualizer_ui.js',
-          'client/src/annotator_ui.js',
-          'client/src/spinner.js'
-      );
-      head.ready(function() {
-          // var dispatcher = new Dispatcher(); // XXX DEBUG
-          dispatcher = new Dispatcher();
-          var urlMonitor = new URLMonitor(dispatcher);
-          var ajax = new Ajax(dispatcher);
-          visualizer = new Visualizer(dispatcher, 'svg');
-          var visualizerUI = new VisualizerUI(dispatcher, window.globalSvg);
-          var annotatorUI = new AnnotatorUI(dispatcher, window.globalSvg);
-          var spinner = new Spinner(dispatcher, '#spinner');
-          var logger = new AnnotationLog(dispatcher);
-          // Util.profileEnable();
+     head.js(
+         // libraries
+         'client/lib/jquery.min.js',
+         'client/lib/jquery-ui.min.js',
+         'client/lib/jquery.svg.min.js',
+         'client/lib/jquery.svgdom.min.js',
+         'client/lib/jquery.ba-bbq.min.js',
+         'client/lib/jquery.sprintf.js',
+         'client/lib/jquery.json.min.js',
+         'client/lib/webfont.js',
+         // brat helpers
+         'client/src/configuration.js',
+         'client/src/util.js',
+         'client/src/annotation_log.js',
+         // brat modules
+         'client/src/dispatcher.js',
+         'client/src/url_monitor.js',
+         'client/src/ajax.js',
+         'client/src/visualizer.js',
+         'client/src/visualizer_ui.js',
+         'client/src/annotator_ui.js',
+         'client/src/spinner.js'
+     );
+     head.ready(function() {
 
 
-          // window.addEventListener("message", (event) => {
-          //   alert("Test")
-          // }, false);
-
-          window.addEventListener('message', ({ data }) => {
-            try {
-              var msg = JSON.parse(data)
-              console.log(msg)
-            // console.log('i got some data!', data); // i got some data! hi!
-              if (msg.document) {
-                console.log(msg.document)
-                window.loadedDoc = msg.document
-                dispatcher.post('ajax', [{
-                    action: 'getDocument',
-                    collection: "test",
-                    'document': msg.document,
-                  }, 'renderData', {
-                    collection: "Test",
-                    'document': msg.document
-                  }]);
-              } else {
-                console.log("NO DOC")
-              }
-            } catch (e) {
-              console.log(e)
-            }
-          });
-
-          dispatcher.post('init');
-          //
-          // dispatcher.post('messages', [dummyReturn.messages]);
-          // dispatcher.post(0, visualizer.collectionLoaded, [dummyReturn]);
-          //
-          // console.log(dummyDocument)
-          // setTimeout(function () {
-          //
-          //
-          //   dispatcher.post('ajax', [{
-          //       action: 'getDocument',
-          //       collection: "test",
-          //       'document': dummyDocument,
-          //     }, 'renderData', {
-          //       collection: "Test",
-          //       'document': dummyDocument
-          //     }]);
-          // }, 500)
-
-          // Example for showing the tutorial form
-          // var tutorialForm = $('#tutorial');
-          //
-          // dispatcher.post('ajax', [{
-          //     action: 'whoami'
-          //   }, function(response) {
-          //     var auth_button = $('#auth_button');
-          //     if (response.user) {
-          //       user = response.user;
-          //       dispatcher.post('messages', [[['Welcome back, user "' + user + '"', 'comment']]]);
-          //       auth_button.val('Logout ' + user);
-          //       dispatcher.post('user', [user]);
-          //       $('.login').show();
-          //     } else {
-          //       console.log("Test")
-          //       user = null;
-          //       auth_button.val('Login');
-          //       dispatcher.post('user', [null]);
-          //       $('.login').hide();
-          //       // don't show tutorial if there's a specific document (annoyance)
-          //       dispatcher.post('showForm', [tutorialForm]);
-          //       $('#tutorial-ok').focus();
-          //
-          //     }
-          //   },
-          //   { keep: true }
-          // ]);
+         // var dispatcher = new Dispatcher(); // XXX DEBUG
+         dispatcher = new Dispatcher();
+         var urlMonitor = new URLMonitor(dispatcher);
+         var ajax = new Ajax(dispatcher);
+         visualizer = new Visualizer(dispatcher, 'svg');
+         var visualizerUI = new VisualizerUI(dispatcher, window.globalSvg);
+         var annotatorUI = new AnnotatorUI(dispatcher, window.globalSvg);
+         var spinner = new Spinner(dispatcher, '#spinner');
+         var logger = new AnnotationLog(dispatcher);
+         // Util.profileEnable();
 
 
-      });
+         // window.addEventListener("message", (event) => {
+         //   alert("Test")
+         // }, false);
+
+         window.addEventListener('message', ({ data }) => {
+             try {
+                 var msg = JSON.parse(data)
+                 console.log(msg)
+                 // console.log('i got some data!', data); // i got some data! hi!
+                 if (msg.document) {
+                     console.log(msg.document)
+                     window.loadedDoc = msg.document
+                     dispatcher.post('ajax', [{
+                         action: 'getDocument',
+                         collection: "test",
+                         'document': msg.document,
+                     }, 'renderData', {
+                         collection: "Test",
+                         'document': msg.document
+                     }]);
+                 } else {
+                     console.log("NO DOC")
+                 }
+             } catch (e) {
+                 console.log(e)
+             }
+         });
+
+         dispatcher.post('init');
+         //
+         // dispatcher.post('messages', [dummyReturn.messages]);
+         // dispatcher.post(0, visualizer.collectionLoaded, [dummyReturn]);
+         //
+         // console.log(dummyDocument)
+         // setTimeout(function () {
+         //
+         //
+         //   dispatcher.post('ajax', [{
+         //       action: 'getDocument',
+         //       collection: "test",
+         //       'document': dummyDocument,
+         //     }, 'renderData', {
+         //       collection: "Test",
+         //       'document': dummyDocument
+         //     }]);
+         // }, 500)
+
+         // Example for showing the tutorial form
+         // var tutorialForm = $('#tutorial');
+         //
+         // dispatcher.post('ajax', [{
+         //     action: 'whoami'
+         //   }, function(response) {
+         //     var auth_button = $('#auth_button');
+         //     if (response.user) {
+         //       user = response.user;
+         //       dispatcher.post('messages', [[['Welcome back, user "' + user + '"', 'comment']]]);
+         //       auth_button.val('Logout ' + user);
+         //       dispatcher.post('user', [user]);
+         //       $('.login').show();
+         //     } else {
+         //       console.log("Test")
+         //       user = null;
+         //       auth_button.val('Login');
+         //       dispatcher.post('user', [null]);
+         //       $('.login').hide();
+         //       // don't show tutorial if there's a specific document (annoyance)
+         //       dispatcher.post('showForm', [tutorialForm]);
+         //       $('#tutorial-ok').focus();
+         //
+         //     }
+         //   },
+         //   { keep: true }
+         // ]);
+
+
+     });
 
     </script>
     <link rel="stylesheet" type="text/css" href="./style-vis.css"/>
