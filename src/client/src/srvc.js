@@ -89,30 +89,32 @@
             const arc = arcs[i];
             const arcO = arc[2];
             const arcT = arc[3];
-            const arcOId = annoLogs.find(obj => obj.id === arcO).uuid;
-            const arcTId = annoLogs.find(obj => obj.id === arcT).uuid;
-            const uuid = generateUUID();
-            const anno = {
-                "@context": "http://www.w3.org/ns/anno.jsonld",
-                "body": [
-                    {
-                        "purpose": "tagging",
-                        "type": "TextualBody",
-                        "value": arc[1],
-                    }],
-                "id": uuid,
-                "motivation": "linking",
-                "target": [
-                    {
-                        "id": arcOId
-                    },
-                    {
-                        "id": arcTId
-                    }
-                ],
-                "type": "Annotation",
-            };
-            annos.push(anno);
+            const arcOId = annoLogs.find(obj => obj.id === arcO)?.uuid;
+            const arcTId = annoLogs.find(obj => obj.id === arcT)?.uuid;
+            if (arc0Id && arcTid) {
+                const uuid = generateUUID();
+                const anno = {
+                    "@context": "http://www.w3.org/ns/anno.jsonld",
+                    "body": [
+                        {
+                            "purpose": "tagging",
+                            "type": "TextualBody",
+                            "value": arc[1],
+                        }],
+                    "id": uuid,
+                    "motivation": "linking",
+                    "target": [
+                        {
+                            "id": arcOId
+                        },
+                        {
+                            "id": arcTId
+                        }
+                    ],
+                    "type": "Annotation",
+                };
+                annos.push(anno);
+            }
         }
 
         console.log('bratToWebAnnoLogBegin');
@@ -350,7 +352,7 @@
                 //&& label.hash == event.data.label
             ) {
                 for (j in event.data.answer) {
-                    if (event.data.answer[j].motivation) {
+                    if (event.data.answer[j].motivation == 'linking') {
                         equivs.push(event.data.answer[j]);
                     } else {
                         entities.push(webAnnoToBrat(event.data.answer[j]));
@@ -425,7 +427,9 @@
                     }
                 }
             }
-            tempEquivs.push([equivIndex, equivType, equivOrigin, equivTarget]);
+            if (equivOrigin && equivTarget) {
+                tempEquivs.push([equivIndex, equivType, equivOrigin, equivTarget]);
+            }
         }
 
         equivs = tempEquivs;
