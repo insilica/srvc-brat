@@ -16,7 +16,7 @@
             req.addEventListener("load", function (resp) {
                 resolve(JSON.parse(req.response));
             });
-            req.open("GET", "/config");
+            req.open("GET", "/srvc/config");
             req.send();
         });
     };
@@ -29,7 +29,7 @@
                 resolve(events);
                 location.hash = '#/document/' + events[0].hash;
             });
-            req.open("GET", "/current-doc-events");
+            req.open("GET", "/srvc/current-doc-events");
             req.send();
         });
     };
@@ -129,7 +129,7 @@
             docEntities = null;
             loadCurrentDocEvents();
         })
-        req.open("POST", "/submit-label-answers");
+        req.open("POST", "/srvc/submit-label-answers");
         req.setRequestHeader("Content-Type", "application/json");
         var answer = {
             "data": {
