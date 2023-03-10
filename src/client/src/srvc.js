@@ -91,7 +91,7 @@
             const arcT = arc[3];
             const arcOId = annoLogs.find(obj => obj.id === arcO)?.uuid;
             const arcTId = annoLogs.find(obj => obj.id === arcT)?.uuid;
-            if (arc0Id && arcTid) {
+            if (arcOId && arcTId) {
                 const uuid = generateUUID();
                 const anno = {
                     "@context": "http://www.w3.org/ns/anno.jsonld",
