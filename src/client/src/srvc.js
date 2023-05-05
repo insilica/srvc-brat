@@ -21,6 +21,14 @@
         });
     };
 
+    let srvcVersion = async () => {
+      let srvc = (await config)['srvc'];
+      if (srvc) {
+        let [major, minor, patch] = srvc.version.split(".");
+        return [parseInt(major), parseInt(minor), parseInt(patch)];
+      }
+    };
+
     const loadCurrentDocEvents = function () {
         currentDocEvents = new Promise((resolve, reject) => {
             var req = new XMLHttpRequest();
@@ -131,10 +139,16 @@
         })
         req.open("POST", "/srvc/submit-label-answers");
         req.setRequestHeader("Content-Type", "application/json");
+
+        let [major, minor] = await srvcVersion() || [];
+        let eventProp = 'document';
+        if (major && major >= 1 || minor >= 18) {
+          eventProp = 'event';
+        }
         var answer = {
             "data": {
                 "answer": await bratToWebAnno(docEntities, docArcs),
-                "document": (await currentDocEvents)[0].hash,
+                eventProp: (await currentDocEvents)[0].hash,
                 "label": (await currentLabels())[0].hash,
                 "reviewer": (await config).reviewer,
                 "timestamp": Math.floor(Date.now() / 1000),
@@ -219,7 +233,7 @@
 
     const createArcResponse = (data) => {
         console.log('createSpanLogBegin');
-        console.log(data);        
+        console.log(data);
         console.log('createSpanLogEnd');
         let equivIndex = '*' + data.sourceData.equivs.length;
         data.sourceData.equivs.push([equivIndex, data.type, data.origin, data.target]);
@@ -234,9 +248,9 @@
 
     const deleteArcResponse = (data) => {
         console.log('deleteArcLogBegin');
-        console.log(data);        
+        console.log(data);
         console.log('deleteArcLogEnd');
-        
+
         for (i in data.sourceData.equivs) {
             const equiv = data.sourceData.equivs[i];
             if (data.old_type === equiv[1] &&
@@ -327,7 +341,7 @@
                 txt = body[i].value;
             }
         }
-        
+
         const selector = anno.target.selector;
         var pos;
         for (i in selector) {
@@ -402,7 +416,7 @@
             entities[i].unshift(i + '');
         }
 
-        
+
         var tempEquivs = [];
         for (i in equivs) {
             let equivIndex = '*' + i;
@@ -438,7 +452,7 @@
     };
 
     const getDocEquivs = async() => {
-        
+
     };
 
     const getDocResponse = async (request) => {
